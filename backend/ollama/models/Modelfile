@@ -1,0 +1,11 @@
+FROM phi3.5:3.8b-mini-instruct-q4_K_M
+PARAMETER temperature 0.7
+PARAMETER num_ctx 131072
+PARAMETER num_gpu 50
+TEMPLATE """
+{{- if .System }}
+{{.System}}
+{{- end }}
+
+{{.Prompt}}
+""" 

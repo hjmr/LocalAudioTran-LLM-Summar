@@ -11,4 +11,3 @@ ENV/
 logs/
 *.gguf
 *.bin
-models/
