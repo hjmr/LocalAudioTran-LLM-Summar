@@ -1,10 +1,10 @@
-# Local Audio Transcription and Summarization using Large Language Model
+# Offline Audio Transcription and Summarization using Large Language Model
 
 A Docker-based pipeline that transcribes audio recordings and generates refined summaries/notes using AI LLM Models. It leverages:
 * **NVIDIA GPU** for accelerating **Whisper** (transcription) and **Phi** (summarization) within **Docker** containers
 * **FastAPI** + **Uvicorn** for a RESTful backend
 * **Streamlit** for a user-friendly frontend UI
-* **Ollama** for hosting the LLM model (Phi 3.5 mini-instruct) and performing advanced text summarization. Note the biggest reason for using Ollama is for the fact we are using GGUF models. The quantized Q8 model provides quality and performance.
+* **Ollama** for hosting the LLM model (Phi 3.5 mini-instruct) and performing advanced text summarization. Note the biggest reason for using Ollama is for the fact we are using GGUF models. The quantized Q4_K_M model provides quality and performance.
 
 ## Table of Contents
 * [Overview](#overview)
@@ -22,7 +22,7 @@ A Docker-based pipeline that transcribes audio recordings and generates refined 
 ## Overview
 
 This project aims to provide an **end-to-end** solution for:
-1. **Transcribing** long or short audio recordings via **OpenAI Whisper**
+1. **Transcribing** long or short audio recordings via **OpenAI Whisper - Medium Model**
 2. **Summarizing** those transcripts using a **Phi** (model name: `phi3.5 mini-instruct`) running inside an **Ollama** container
 
 ### Key Features
@@ -123,8 +123,9 @@ LocalAudioTran-LLM-Summar/
 * Disk Space:
   * Docker images: >1GB
   * Full environment + models: Several GB
-* RAM: Minimum 8GB recommended
-* GPU Memory: 8-16GB recommended (if using GPU)
+* RAM: Minimum 32-64GB recommended
+* GPU Memory: 12-16GB recommended (if using GPU)
+* Internet connection: Required for downloading models
 
 ### 4. Environment Setup (Mandatory Step)
 Create a `.env` file at the repository root:
@@ -163,7 +164,7 @@ This creates two containers:
 2. Upload audio file (supported: mp3, wav, m4a)
 3. Click "Process Audio"
 4. View results in "Transcription" and "Summary" tabs
-
+5. Optional use the Clipboard to copy the summary as a text file
 ## Technical Details
 
 ### Transcription Flow
@@ -212,7 +213,7 @@ nvidia-smi
 #### Memory Issues
 * Reduce model size
 * Lower context window
-* Ensure sufficient GPU memory (8-16GB)
+* Ensure sufficient GPU memory (16-24GB)
 
 #### Port Conflicts
 Default ports:
