@@ -174,7 +174,7 @@ This creates two containers:
 4. Results returned to client
 
 ### Summarization Flow
-1. **Direct Processing**: Transcript processed in a single pass using Phi model. The biggest reason to choose a large context window is to ensure the model can process the entire transcript without truncation, chunking, overlapping sections etc as the quality gets detoirated with chunking
+1. **Direct Processing**: Transcript processed in a single pass using Phi model. The biggest reason to choose a large context window is to ensure the model can process the entire transcript without truncation, chunking, overlapping sections etc as the quality gets deteriorated with chunking
 2. **Structured Output**: Summary organized into clear sections:
    - Overview
    - Main Points
