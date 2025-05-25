@@ -1,5 +1,6 @@
 # File: Dockerfile
-FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+#FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.9.0-runtime-ubuntu24.04
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1 \
@@ -8,16 +9,16 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 \
-    python3.11-dev \
-    python3.11-venv \
+    python3.12 \
+    python3.12-dev \
+    python3.12-venv \
     python3-pip \
     ffmpeg \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a virtual environment
-RUN python3.11 -m venv /opt/venv
+RUN python3.12 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app
