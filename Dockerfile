@@ -1,5 +1,4 @@
-# File: Dockerfile
-#FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+# File: Docker1file
 FROM nvidia/cuda:12.9.0-runtime-ubuntu24.04
 
 # Environment variables
@@ -8,7 +7,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt install -y --no-install-recommends \
     python3.12 \
     python3.12-dev \
     python3.12-venv \
@@ -26,11 +25,13 @@ RUN mkdir -p frontend/src backend
 
 # Install backend dependencies
 COPY backend/requirements.txt backend/
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip3 install --pre torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/nightly/cu128
+RUN pip3 install --no-cache-dir -r backend/requirements.txt
 
 # Install frontend dependencies
 COPY frontend/requirements.txt frontend/
-RUN pip install --no-cache-dir -r frontend/requirements.txt
+RUN pip3 install --no-cache-dir -r frontend/requirements.txt
 
 # Copy your actual code
 COPY backend/ backend/
