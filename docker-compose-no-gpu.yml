@@ -20,14 +20,6 @@ services:
     environment:
       - PYTHONPATH=/app
 
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -42,11 +34,3 @@ services:
     volumes:
       - ./ollama/data:/root/.ollama
       - ./ollama/modelfiles:/modelfiles
-  
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
