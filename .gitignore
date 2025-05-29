@@ -11,3 +11,4 @@ ENV/
 logs/
 *.gguf
 *.bin
+ollama/data/
