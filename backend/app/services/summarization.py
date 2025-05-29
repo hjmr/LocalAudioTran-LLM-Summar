@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class SummarizationService:
     def __init__(self):
         self.ollama_url = "http://ollama:11434"
-        self.model_name = "phi3.5"
+        self.model_name = "my-phi4-mini"
         self.model = None
         # Load model on initialization
         self.load_model()
@@ -38,7 +38,7 @@ class SummarizationService:
 
             logger.info("Creating Phi model in Ollama...")
             modelfile = '''
-FROM phi3.5:3.8b-mini-instruct-q8_0
+FROM my-phi4-mini
 PARAMETER temperature 0.7
 PARAMETER num_ctx 131072
 PARAMETER num_gpu 50
