@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: main_app
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,12 +35,14 @@ services:
       retries: 3
 
   ollama:
+    container_name: ollama
     image: ollama/ollama:latest
     ports:
       - "11434:11434"
     volumes:
       - ./ollama/data:/root/.ollama
       - ./ollama/modelfiles:/modelfiles
+  
 #    deploy:
 #      resources:
 #        reservations:
