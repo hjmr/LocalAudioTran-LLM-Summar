@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class TranscriptionService:
-    def __init__(self, model_size="small"):
+    def __init__(self, model_size="medium"):
         self.model_size = model_size
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Loading Whisper {model_size} model on {self.device}")
