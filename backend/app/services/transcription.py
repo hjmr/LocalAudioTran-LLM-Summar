@@ -12,16 +12,19 @@ class TranscriptionService:
     def __init__(self, model_size="medium"):
         self.model_size = model_size
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info(f"Loading Whisper {model_size} model on {self.device}")
+
+    def load_model(self):
+        logger.info(f"Loading Whisper {self.model_size} model on {self.device}")
         try:
             self.model = whisper.load_model(self.model_size)
-            logger.info(f"Whisper {model_size} model loaded successfully")
+            logger.info(f"Whisper {self.model_size} model loaded successfully")
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {str(e)}")
             raise
 
     async def transcribe(self, file: UploadFile) -> str:
         """Transcribe audio file using Whisper"""
+        self.load_model()
         try:
             logger.info(f"Starting transcription for {file.filename}")
 
