@@ -3,74 +3,54 @@ from typing import Dict
 import requests
 import json
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("summarization")
 
 
 class SummarizationService:
     def __init__(self):
         self.ollama_url = "http://ollama:11434"
-        self.model_name = "phi4-mini"
-        self.model = None
-        # Load model on initialization
-        self.load_model()
 
     def health_check(self) -> bool:
+        """Check if Ollama is running and responsive"""
+        try:
+            response = requests.get(f"{self.ollama_url}/api/health")
+            if response.status_code == 200:
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Ollama health check failed: {str(e)}")
+            return False
+
+    def check_model_availability(self, model_name: str) -> bool:
         """Check if model is loaded and Ollama is responsive"""
         try:
             # Check if Ollama is running and model exists
             response = requests.get(f"{self.ollama_url}/api/tags")
             if response.status_code == 200:
                 models = response.json().get("models", [])
-                return any(model["name"] == self.model_name for model in models)
+                return any(model["name"] == model_name for model in models)
             return False
         except Exception as e:
-            logger.error(f"Health check failed: {str(e)}")
+            logger.error(f"Model availability check failed: {str(e)}")
             return False
 
-    def load_model(self):
-        """Create the Phi model in Ollama"""
-        try:
-            # First check if model already exists
-            if self.health_check():
-                logger.info("Model already exists")
-                self.model = True  # Just set a flag that model is available
-                return
-
-            logger.info("Creating Phi model in Ollama...")
-            modelfile = '''
-FROM phi4-mini
-PARAMETER temperature 0.7
-PARAMETER num_ctx 131072
-PARAMETER num_gpu 50
-TEMPLATE """
-{{- if .System }}
-{{.System}}
-{{- end }}
-
-{{.Prompt}}
-"""
-'''
-            response = requests.post(
-                f"{self.ollama_url}/api/create",
-                json={
-                    "name": self.model_name,
-                    "modelfile": modelfile,
-                },
-            )
-            if response.status_code == 200:
-                logger.info("Model created successfully")
-                self.model = True  # Set flag that model is available
-            else:
-                logger.error(f"Failed to create model: {response.text}")
-                raise Exception(f"Failed to create model: {response.text}")
-        except Exception as e:
-            logger.error(f"Failed to load model: {str(e)}")
-            logger.exception("Full traceback:")
-            raise
-
-    def generate_summary(self, text: str) -> Dict:
+    def generate_summary(self, model_name: str, text: str) -> Dict:
         """Generate summary using Ollama"""
         try:
+            # Check if the model is available
+            if not self.check_model_availability(model_name):
+                logger.error(f"Model {model_name} is not available.")
+                return {
+                    "overview": f"Model {model_name} is not available.",
+                    "main_points": [],
+                    "key_insights": [],
+                    "action_items_decisions": [],
+                    "open_questions_next_steps": [],
+                    "conclusions": [],
+                    "full_text": "",
+                }
+            logger.info(f"Using model: {model_name}")
+
             if not text:
                 return {
                     "overview": "No text provided",
@@ -145,7 +125,7 @@ TEMPLATE """
             response = requests.post(
                 f"{self.ollama_url}/api/generate",
                 json={
-                    "model": self.model_name,
+                    "model": model_name,
                     "system": system_prompt,
                     "prompt": f"次のテキストを要約してください:\n\n{text}",
                     "stream": False,

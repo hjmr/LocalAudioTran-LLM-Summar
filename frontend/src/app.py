@@ -131,10 +131,11 @@ def main():
                 progress_bar = progress_container.progress(0)
                 status_container.info("📤 Uploading audio file...")
 
+                params = {"llm_name": "phi4-mini:latest", "whisper_model": "large-v3"}
                 files = {"file": uploaded_file}
                 logger.info("Sending request to API")
 
-                response = requests.post("http://app:8000/transcribe", files=files, timeout=7200)
+                response = requests.post("http://app:8000/transcribe", params=params, files=files, timeout=7200)
 
                 if response.status_code == 200:
                     data = response.json()

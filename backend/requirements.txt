@@ -7,7 +7,7 @@ python-multipart
 uvicorn
 python-dotenv
 ffmpeg-python
-openai-whisper
+faster-whisper
 
 protobuf
 nltk

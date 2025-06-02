@@ -1,30 +1,36 @@
-import whisper
+from faster_whisper import WhisperModel
 import logging
 import tempfile
 import os
 from fastapi import UploadFile
 import torch
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("transcription")
 
 
 class TranscriptionService:
-    def __init__(self, model_size="medium"):
-        self.model_size = model_size
+    def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.model_size = None
+        self.model = None
 
-    def load_model(self):
-        logger.info(f"Loading Whisper {self.model_size} model on {self.device}")
+    def load_model(self, model_size: str = "large-v3"):
+        logger.info(f"Loading Faster-Whisper {model_size} model on {self.device}")
         try:
-            self.model = whisper.load_model(self.model_size)
-            logger.info(f"Whisper {self.model_size} model loaded successfully")
+            self.model = WhisperModel(
+                model_size, device=self.device, compute_type="float16" if self.device == "cuda" else "int8"
+            )
+            self.model_size = model_size
+            logger.info(f"Faster-Whisper {self.model_size} model loaded successfully")
         except Exception as e:
-            logger.error(f"Failed to load Whisper model: {str(e)}")
+            logger.error(f"Failed to load Faster-Whisper model: {str(e)}")
             raise
 
-    async def transcribe(self, file: UploadFile) -> str:
-        """Transcribe audio file using Whisper"""
-        self.load_model()
+    async def transcribe(self, model_size: str, file: UploadFile) -> str:
+        """Transcribe audio file using Faster-Whisper"""
+        if self.model_size != model_size or self.model is None:
+            logger.info(f"Model size mismatch or model not loaded, loading model: {model_size}")
+            self.load_model(model_size)
         try:
             logger.info(f"Starting transcription for {file.filename}")
 
@@ -34,13 +40,11 @@ class TranscriptionService:
                 tmp.write(content)
                 tmp.flush()
 
-                logger.info("Processing audio with Whisper...")
-                result = self.model.transcribe(
+                logger.info("Processing audio with Faster-Whisper...")
+                segments, info = self.model.transcribe(
                     tmp.name,
                     language="ja",  # Japanese
                     task="transcribe",
-                    fp16=torch.cuda.is_available(),
-                    verbose=False,
                     temperature=0.0,  # Use greedy decoding
                     best_of=1,  # No need for multiple samples with temperature=0
                     beam_size=5,  # Beam search size
@@ -49,7 +53,8 @@ class TranscriptionService:
                 # Clean up the temporary file
                 os.unlink(tmp.name)
 
-                transcription = result["text"]
+                transcription = [segment.text for segment in segments if segment.text.strip()]
+                transcription = " ".join(transcription).strip()
 
                 # Unload model to free GPU memory
                 logger.info("Transcription complete, unloading model...")
@@ -68,7 +73,9 @@ class TranscriptionService:
         try:
             if hasattr(self, "model"):
                 del self.model
-                torch.cuda.empty_cache()
+                self.model = self.model_size = None
+                if self.device == "cuda":
+                    torch.cuda.empty_cache()
                 logger.info("Whisper model unloaded successfully")
         except Exception as e:
             logger.error(f"Error unloading model: {str(e)}")
