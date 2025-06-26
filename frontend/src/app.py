@@ -131,7 +131,11 @@ def main():
                 progress_bar = progress_container.progress(0)
                 status_container.info("📤 Uploading audio file...")
 
-                params = {"llm_name": "gemma3:latest", "whisper_model": "medium"}
+                # params = {"llm_name": "gemma3:latest", "whisper_model": "medium"}
+                params = {
+                    "llm_name": "7shi/borea-phi-3.5-jp:3.8b-mini-instruct-q6_K",
+                    "whisper_model": "medium"
+                }
                 files = {"file": uploaded_file}
                 logger.info("Sending request to API")
 
